@@ -1,8 +1,6 @@
 ﻿using FileUploadTest.Models;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
@@ -12,17 +10,20 @@ namespace FileUploadTest.Controllers
 {
     public class UploadController : ApiController
     {
-        internal const string _fileName = "~/Files";
-        internal const string _tempName = "~/Temp";
+        internal const string FileName = "~/Files";
+        internal const string TempName = "~/Temp";
+        
         public async Task<List<FileUpload>> Post()
         {
-            MultipartFormDataStreamProvider streamProvider =
-                new MultipartFormDataStreamProvider(HttpContext.Current.Request.MapPath(_tempName));
+            var streamProvider =
+                new MultipartFormDataStreamProvider(HttpContext.Current.Request.MapPath(TempName));
 
             await Request.Content.ReadAsMultipartAsync(streamProvider);
-            var origin = Request.Headers.FirstOrDefault(x => x.Key == "origin").Value.FirstOrDefault();
-
-            List<FileUpload> returnValue = streamProvider.FileData.Select(x =>
+            var origin = "";
+            if (Request.Headers.Contains("Origin"))
+                origin = Request.Headers.GetValues("Origin").FirstOrDefault();
+        
+            var returnValue = streamProvider.FileData.Select(x =>
                 new FileUpload(x.LocalFileName, x.Headers.ContentDisposition.FileName, origin)).ToList();
             return returnValue;
         }
