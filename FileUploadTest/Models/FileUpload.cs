@@ -16,11 +16,13 @@ namespace FileUploadTest.Models
         {
             this.FileName = fileName.Trim('"');
             var fileFolder = System.Web.Hosting.HostingEnvironment.MapPath(Controllers.UploadController.FileName);
-            var fileFullPath = Path.Combine(fileFolder, this.FileName);
+            if (fileFolder != null)
+            {
+                var fileFullPath = Path.Combine(fileFolder, this.FileName);
+                File.Copy(localFileName, fileFullPath,true);
+            }
 
-            File.Copy(localFileName, fileFullPath,true);
             File.Delete(localFileName);
-
             this.DownloadLink = origin + "/" + Controllers.UploadController.FileName.TrimStart('~') + "/" + this.FileName;
         }
 
